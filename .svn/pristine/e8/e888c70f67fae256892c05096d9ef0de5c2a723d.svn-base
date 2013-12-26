@@ -1,0 +1,85 @@
+package edu.wm.cs.cs301.jesavino;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.content.Intent;
+import android.support.v4.app.NavUtils;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.RadioButton;
+
+public class PlayActivity extends Activity {
+	private ProgressBar mProgress;
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_play);
+		mProgress = (ProgressBar) findViewById(R.id.progress_battery);
+		mProgress.setProgress(2500);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.play, menu);
+		return true;
+	}
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+		case android.R.id.home:
+			Log.v("PlayActivity" , "Returning to main menu");
+			Intent intent = new Intent(this , AMazeActivity.class);
+			NavUtils.navigateUpTo(this, intent);
+			return true;
+			
+		case R.id.action_solve:
+			Log.v("PlayActivity" , "Solving /Play / Pause Maze");
+			Intent finishIntent = new Intent(this, FinishActivity.class);
+			startActivity(finishIntent);
+		default:
+			return super.onOptionsItemSelected(item);
+		}		
+	}
+	public void onRadioButtonClicked(View view) {
+		// is the button now checked?
+		boolean checked = ((RadioButton) view).isChecked();
+		
+		switch(view.getId()) {
+		case R.id.radio_Map:
+			if(checked)
+				Log.v("RadioButton" , "Show Map");
+			break;
+		case R.id.radio_solution:
+			if(checked)
+				Log.v("RadioButton" , "Show Solution");
+			break;
+		case R.id.radio_walls:
+			if(checked)
+				Log.v("RadioButton" , "Show Walls");
+			break;
+		}		
+		
+	}
+	public void onDirectionButtonClicked(View view) {
+		switch(view.getId()) {
+		case R.id.left_button:
+			Log.v("DirectionButton" , "Turning left");
+			break;
+		case R.id.up_button:
+			Log.v("DirectionButton" , "Moving Forward");
+			break;
+		case R.id.right_button:
+			Log.v("DirectionButton" , "Turning right");
+			break;
+		case R.id.down_button:
+			Log.v("DirectionButton" , "Moving back");
+			break;
+		
+		}
+		
+	}
+
+}

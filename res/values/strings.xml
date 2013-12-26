@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">AMazeByJohnSavino</string>
+    <string name="action_settings">Settings</string>
+    <string name="maze">Maze</string>
+    <string name="falstad">by Paul Falstad     www.falstad.com</string>
+    <string name="instruction">To Play, Select a Skill, Play Mode, and Generation Algorithm below</string>
+    <string name="button_play">Generate Maze</string>
+    <string name="skill_select">Select Difficulty</string>
+
+    <string-array name="algorithms_array">
+        <item>Random Generation</item>
+        <item>Prim\'s Algorithm</item>
+        <item>Eller\'s Algorithm</item>
+    </string-array>
+    <string-array name="robots_array">
+        <item>Manual</item>
+        <item>Gambler</item>
+        <item>Curious Gambler</item>
+        <item>Wall Follower</item>
+        <item>Wizard</item>
+    </string-array>
+
+    <string name="random">Random Maze Generation</string>
+    <string name="loadFromFile">Load Maze From File</string>
+    <string name="action_play">Generate Maze</string>
+    <string name="title_activity_generating">GeneratingActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="generating_maze">Loading: Please Wait...</string>
+    <string name="title_activity_play">PlayActivity</string>
+    <string name="action_back">Return to Main Menu</string>
+    <string name="maze_placeholder">This is where the maze will go</string>
+    <string name="map">Show Map</string>
+    <string name="showSolution">Show the Solution</string>
+    <string name="showWalls">Show Walls</string>
+    <string name="left">left</string>
+    <string name="forward">forward</string>
+    <string name="back">back</string>
+    <string name="right">right</string>
+    <string name="title_activity_finish">FinishActivity</string>
+    <string name="end_of_maze">The Maze has Ended due to:</string>
+    <string name="ending_conditions">Victory!</string>
+    <string name="usage_stats">See Usage Statistics!</string>
+    <string name="title_activity_usage">UsageActivity</string>
+    <string name="stats">Usage Stats</string>
+    <string name="this_success">Number of Successes on this Difficulty</string>
+    <string name="recent_steps">Length of Path Taken This Time</string>
+    <string name="shortest_path">Shortest Path On This Difficulty</string>
+    <string name="this_energy">Energy Consumption This Time</string>
+    <string name="best_energy">Least Energy Consumer on This Difficulty</string>
+
+</resources>

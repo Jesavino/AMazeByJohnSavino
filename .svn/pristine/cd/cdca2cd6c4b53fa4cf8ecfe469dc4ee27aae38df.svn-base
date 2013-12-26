@@ -1,0 +1,344 @@
+package edu.wm.cs.cs301.jesavino.UI;
+
+import java.util.List;
+
+import edu.wm.cs.cs301.jesavino.R;
+import edu.wm.cs.cs301.jesavino.R.id;
+import edu.wm.cs.cs301.jesavino.R.layout;
+import edu.wm.cs.cs301.jesavino.R.menu;
+import edu.wm.cs.cs301.jesavino.falstad.BSPNode;
+import edu.wm.cs.cs301.jesavino.falstad.BasicRobot;
+import edu.wm.cs.cs301.jesavino.falstad.Cells;
+import edu.wm.cs.cs301.jesavino.falstad.CuriousGambler;
+import edu.wm.cs.cs301.jesavino.falstad.Distance;
+import edu.wm.cs.cs301.jesavino.falstad.Gambler;
+import edu.wm.cs.cs301.jesavino.falstad.Globals;
+import edu.wm.cs.cs301.jesavino.falstad.HitObstacleException;
+import edu.wm.cs.cs301.jesavino.falstad.ManualDriver;
+import edu.wm.cs.cs301.jesavino.falstad.Maze;
+import edu.wm.cs.cs301.jesavino.falstad.MazePanel;
+import edu.wm.cs.cs301.jesavino.falstad.RobotDrivers;
+import edu.wm.cs.cs301.jesavino.falstad.UnsuitableRobotException;
+import edu.wm.cs.cs301.jesavino.falstad.WallFollower;
+import edu.wm.cs.cs301.jesavino.falstad.Wizard;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.app.Activity;
+import android.content.Intent;
+import android.support.v4.app.NavUtils;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.Toast;
+
+public class PlayActivity extends Activity {
+	public static ProgressBar mProgress;
+	
+	Maze maze;
+	MazePanel mazeView;
+	int robotMode = 0;
+	public static Handler mHandler;
+	public static Runnable mUpdateView;
+	public RobotDrivers robotDriver;
+	public BasicRobot robot;
+	int battery = 2500;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_play);
+		mProgress = (ProgressBar) findViewById(R.id.progress_battery);
+		mProgress.setProgress(battery);
+	    
+		// get the maze and make it viewable. 
+		Bundle bundle = getIntent().getExtras();
+		BSPNode root = (BSPNode) bundle.getSerializable("BSPnode");
+		Cells cells = (Cells) bundle.getSerializable("Cells");
+		Distance dists = (Distance) bundle.getSerializable("Distance");
+		int startx = bundle.getInt("startx");
+		int starty = bundle.getInt("starty");
+		int mazew = bundle.getInt("mazew");
+		int mazeh = bundle.getInt("mazeh");
+		String robotName = bundle.getString("robotDriver");
+		
+		maze = new Maze(0); //maze has been generated so method doesnt matter
+		maze.mazew = mazew;
+		maze.mazeh = mazeh;
+		
+		maze.newMaze(root, cells, dists, startx, starty);
+				
+		// create the view
+		Globals.mazeView = (MazePanel) findViewById(R.id.mazePanel);
+			
+		Globals.mazeView.setScreen();
+		// draw the view
+		maze.setPanel(Globals.mazeView);
+		maze.makeViews(Globals.mazeView);
+		
+		// figure out which algorithm is going to be used
+		// set to 0 by default
+		if(robotName.equals("Wizard")) 
+			robotMode = 4;
+		else if(robotName.equals("Gambler"))
+			robotMode = 1;
+		else if(robotName.equals("Curious Gambler"))
+			robotMode = 2;
+		else if(robotName.equals("Wall Follower"))
+			robotMode = 3;
+		
+		
+		switch(robotMode) {
+		case 0:
+			robot = new BasicRobot(maze);
+			robotDriver = new ManualDriver();
+			try{
+				robotDriver.setRobot(robot);
+			} catch (UnsuitableRobotException s) {System.out.println("Your robot has no sensors!");}
+			break; //manual mode
+		case 1:
+			robot = new BasicRobot(maze, true , true, false ,false);
+			robotDriver = new Gambler();
+			try{
+				robotDriver.setRobot(robot);
+			} catch (UnsuitableRobotException s) {System.out.println("Your robot has no sensors!");}
+			new RobotTask().execute();
+			break;
+		case 2:
+			robot = new BasicRobot(maze, true, true, false, false);
+			robotDriver = new CuriousGambler();
+			try{
+				robotDriver.setRobot(robot);
+			} catch (UnsuitableRobotException s) {System.out.println("Your robot has no sensors!");}
+			new RobotTask().execute();
+			break;
+		case 3:
+			robot = new BasicRobot(maze, true, true, false, false);
+			robotDriver = new WallFollower();
+			try{
+				robotDriver.setRobot(robot);
+			} catch (UnsuitableRobotException s) {System.out.println("Your robot has no sensors!");}
+			new RobotTask().execute();
+			break;
+		case 4:
+			robot = new BasicRobot(maze);
+			robotDriver = new Wizard(maze.mazedists);
+			try{
+				robotDriver.setRobot(robot);
+			} catch (UnsuitableRobotException s) {System.out.println("Your robot has no sensors!");}
+			new RobotTask().execute();
+			break;
+			
+		}		
+	}
+	
+	class RobotTask extends AsyncTask<Integer , Void , Void> {
+
+		@Override
+		protected Void doInBackground(Integer... params) {
+			
+			try {
+				
+				if(robotDriver.drive2Exit()) {
+					Intent finishIntent = new Intent(PlayActivity.this, FinishActivity.class);
+					startActivity(finishIntent);
+				}
+			} catch (Exception e) {
+				Toast.makeText(PlayActivity.this, "Robot Ran Out Of Power", Toast.LENGTH_SHORT).show();
+				Intent intent = new Intent(PlayActivity.this , AMazeActivity.class);
+				NavUtils.navigateUpTo(PlayActivity.this, intent);
+				
+			}
+			return null;
+		}
+		protected void onProgressUpdate(Integer... progress) {
+			mProgress.setProgress(mProgress.getProgress() - progress[0]);		
+		}
+
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.play, menu);
+		getActionBar().setHomeButtonEnabled(true);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		return true;
+	}
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+		case android.R.id.home:
+			Log.v("PlayActivity" , "Returning to main menu");
+			Intent intent = new Intent(this , AMazeActivity.class);
+			NavUtils.navigateUpTo(this, intent);
+			return true;
+			
+		case R.id.action_solve:
+			Log.v("PlayActivity" , "Solving /Play / Pause Maze");
+			Intent finishIntent = new Intent(this, FinishActivity.class);
+			startActivity(finishIntent);
+		default:
+			return super.onOptionsItemSelected(item);
+		}		
+	}
+	public void onRadioButtonClicked(View view) {
+		// is the button now checked?
+		boolean checked = ((RadioButton) view).isChecked();
+		
+		switch(view.getId()) {
+		case R.id.radio_Map:
+			if(checked) {
+				Log.v("RadioButton" , "Show Map");
+				maze.mapMode = !maze.mapMode; 		
+				maze.notifyViewerRedraw() ;
+				Globals.mazeView.postInvalidate();
+			}
+			break;
+		case R.id.radio_solution:
+			if(checked) {
+				Log.v("RadioButton" , "Show Solution");
+				if(maze.mapMode) {
+					maze.showSolution = !maze.showSolution; 		
+					maze.notifyViewerRedraw() ;
+					Globals.mazeView.postInvalidate();
+				}
+			}			
+			break;
+		case R.id.radio_walls:
+			if(checked)
+				Log.v("RadioButton" , "Show Walls");
+			break;
+		}		
+		
+	}
+	public void onDirectionButtonClicked(View view) {
+		switch(view.getId()) {
+		// LEFT EVENTS
+		case R.id.left_button:
+			Log.v("DirectionButton" , "Turning left");
+			
+			try{ 
+				if(maze.robotDriver.drive2Exit()) {
+					Log.v("PlayActivity" , "Solving /Play / Pause Maze");
+					Intent finishIntent = new Intent(this, FinishActivity.class);
+					startActivity(finishIntent);
+					break;
+				}	
+			} catch (Exception e) {
+				System.out.println("Oh no your robot died");
+				Toast.makeText(PlayActivity.this, "Robot Crashed!", Toast.LENGTH_SHORT).show();
+				Log.v("PlayActivity" , "Returning to main menu");
+				Intent intent = new Intent(this , AMazeActivity.class);
+				NavUtils.navigateUpTo(this, intent);
+			}
+			if(maze.robot.hasStopped()) {
+				System.out.println("Oh no your robot died");
+				Log.v("PlayActivity" , "Returning to main menu");
+				Intent intent = new Intent(this , AMazeActivity.class);
+				NavUtils.navigateUpTo(this, intent);
+			}
+			maze.robotDriver.turnLeft();
+			break;
+			
+		// UP events	
+		case R.id.up_button:
+			Log.v("DirectionButton" , "Moving Forward");
+			try{ 
+				if(maze.robotDriver.drive2Exit()) {
+					Log.v("PlayActivity" , "Solving /Play / Pause Maze");
+					Intent finishIntent = new Intent(this, FinishActivity.class);
+					startActivity(finishIntent);
+					break;
+				}	
+			} catch (Exception e) {
+				System.out.println("Oh no your robot died");
+				Toast.makeText(PlayActivity.this, "Robot Crashed!", Toast.LENGTH_SHORT).show();
+				Log.v("PlayActivity" , "Returning to main menu");
+				Intent intent = new Intent(this , AMazeActivity.class);
+				NavUtils.navigateUpTo(this, intent);
+			}
+			try {
+				if(maze.robot.hasStopped()) {
+					System.out.println("Oh no your robot died");
+					Log.v("PlayActivity" , "Returning to main menu");
+					Intent intent = new Intent(this , AMazeActivity.class);
+					NavUtils.navigateUpTo(this, intent);
+				}
+				maze.robotDriver.stepForward();
+			} catch (HitObstacleException h) {
+				System.out.println("You hit a wall!");
+				Toast.makeText(PlayActivity.this, "Robot Crashed!", Toast.LENGTH_SHORT).show();
+				Log.v("PlayActivity" , "Returning to main menu");
+				Intent intent = new Intent(this , AMazeActivity.class);
+				NavUtils.navigateUpTo(this, intent);
+			}
+			
+			break;
+			
+		// RIGHT events	
+		case R.id.right_button:
+			Log.v("DirectionButton" , "Turning right");
+			try{ 
+				if(maze.robotDriver.drive2Exit()) {
+					Log.v("PlayActivity" , "Solving /Play / Pause Maze");
+					Intent finishIntent = new Intent(this, FinishActivity.class);
+					startActivity(finishIntent);
+					break;
+				}	
+			} catch (Exception e) {
+				System.out.println("Oh no your robot died");
+				Toast.makeText(PlayActivity.this, "Robot Crashed!", Toast.LENGTH_SHORT).show();
+				Log.v("PlayActivity" , "Returning to main menu");
+				Intent intent = new Intent(this , AMazeActivity.class);
+				NavUtils.navigateUpTo(this, intent);
+			}
+			if(maze.robot.hasStopped()) {
+				System.out.println("Oh no your robot died");
+				Log.v("PlayActivity" , "Returning to main menu");
+				Intent intent = new Intent(this , AMazeActivity.class);
+				NavUtils.navigateUpTo(this, intent);
+			}
+			maze.robotDriver.turnRight();
+			break;
+			
+		// DOWN events	
+		case R.id.down_button:
+			Log.v("DirectionButton" , "Moving back");
+			try{ 
+				if(maze.robotDriver.drive2Exit()) {
+					Log.v("PlayActivity" , "Solving /Play / Pause Maze");
+					Intent finishIntent = new Intent(this, FinishActivity.class);
+					startActivity(finishIntent);
+					break;
+				}	
+			} catch (Exception e) {
+				System.out.println("Oh no your robot died");
+				Toast.makeText(PlayActivity.this, "Robot Crashed!", Toast.LENGTH_SHORT).show();
+				Log.v("PlayActivity" , "Returning to main menu");
+				Intent intent = new Intent(this , AMazeActivity.class);
+				NavUtils.navigateUpTo(this, intent);
+			}
+			if(maze.robot.hasStopped()) {
+				System.out.println("Oh no your robot died");
+				Log.v("PlayActivity" , "Returning to main menu");
+				Intent intent = new Intent(this , AMazeActivity.class);
+				NavUtils.navigateUpTo(this, intent);
+			}
+			try {
+				maze.robotDriver.stepBackward();
+				} catch (HitObstacleException h) {
+					System.out.println("You hit a wall behind you!");
+					Log.v("PlayActivity" , "Returning to main menu");
+					Intent intent = new Intent(this , AMazeActivity.class);
+					NavUtils.navigateUpTo(this, intent);
+				}
+			break;
+		
+		}
+		
+	}
+};
+

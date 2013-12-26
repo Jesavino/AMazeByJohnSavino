@@ -1,0 +1,69 @@
+package edu.wm.cs.cs301.jesavino;
+
+import android.os.Bundle;
+import android.os.Handler;
+import android.app.Activity;
+import android.content.Intent;
+import android.support.v4.app.NavUtils;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.ProgressBar;
+
+public class GeneratingActivity extends Activity {
+	private static final int PROGRESS = 0x1;
+	
+	private ProgressBar mProgress;
+	private int mProgressStatus = 0;
+	
+	private Handler mHandler = new Handler();
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_generating);
+		
+		mProgress = (ProgressBar) findViewById(R.id.progress_generating);
+		
+		// generate the maze in here
+		while (mProgressStatus < 10000) {
+			Log.v("Generating Activty" , "This is where we generate the maze");
+			mProgressStatus += 1;
+			mProgress.setProgress(mProgressStatus);
+		}
+		
+		//Intent intent = new Intent(this, PlayActivity.class);
+		//startActivity(intent);
+		
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.generating, menu);
+		getActionBar().setHomeButtonEnabled(true);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		return true;
+	}
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+		case android.R.id.home:
+			Log.v("Generating Activity" , "Returning to main menu");
+			Intent intent = new Intent(this , AMazeActivity.class);
+			NavUtils.navigateUpTo(this, intent);
+			return true;
+		case R.id.action_play:
+			Log.v("Generating Activity" , "Going to maze view");
+			Intent playIntent = new Intent(this , PlayActivity.class);
+			startActivity(playIntent);
+			return true;
+			
+		default:
+			return super.onOptionsItemSelected(item);
+		
+		}		
+	}
+
+	
+
+}

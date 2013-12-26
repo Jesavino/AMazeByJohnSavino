@@ -1,0 +1,80 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".MainActivity" 
+	android:orientation="vertical" >
+    
+    <TextView android:id="@+id/welcome"
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+		android:text="@string/maze" 
+		android:textAllCaps="true"
+		android:textAppearance="@+style/largeText"	/>
+    
+    <TextView android:id="@+id/falstad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="15sp"
+        android:text="@string/falstad"
+        android:textAppearance="@+style/smallFont" />
+    
+    <TextView android:id="@+id/instruction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30sp"
+        android:layout_gravity="fill_horizontal"
+        android:gravity="center_horizontal"
+        android:text="@string/instruction"
+        android:textAppearance="@+style/smallFont" />
+    
+    <SeekBar
+        android:id="@+id/skillSelector"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/skill_select"
+        android:max="15"
+        android:progress="5"
+         />
+    
+    <Spinner
+        android:id="@+id/algorithm_spinner"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        
+        
+        />
+    
+     <Spinner
+        android:id="@+id/robot_spinner"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+     
+     <RadioGroup 
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:orientation="vertical" >
+         <RadioButton android:id="@+id/radio_random"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:checked="true"
+             android:text="@string/random"
+             android:onClick="onRadioButtonClicked" />
+         <RadioButton android:id="@+id/radio_load"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="@string/loadFromFile"
+             android:onClick="onRadioButtonClicked" />             
+         </RadioGroup>
+    
+    
+    
+    
+</LinearLayout>
